@@ -6,7 +6,7 @@
 /*   By: abakirca <abakirca@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/07 18:24:27 by abakirca          #+#    #+#             */
-/*   Updated: 2025/02/10 19:05:46 by abakirca         ###   ########.fr       */
+/*   Updated: 2025/02/11 14:21:04 by abakirca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,8 @@
 
 ScalarConverter::ScalarConverter()
 {
+	predot = false;
+	postdot = false;
 }
 
 ScalarConverter::ScalarConverter(const ScalarConverter &copy)
@@ -34,7 +36,7 @@ ScalarConverter::~ScalarConverter()
 {
 }
 
-static int check_psuedo(std::string input)
+int ScalarConverter::check_psuedo(std::string input)
 {
 	if (input == "nanf" || input == "+inff" || input == "-inff")
 	{
@@ -56,13 +58,15 @@ static int check_psuedo(std::string input)
 		return (0);
 }
 
-static int check_char(std::string input)
+int ScalarConverter::check_char(std::string input)
 {
 	if (input.size() == 1 && !isdigit(input[0]))
 		return (VAL_CHAR);
+	else
+		return (0);
 }
 
-static int check_int(std::string input)
+int ScalarConverter::check_int(std::string input)
 {
 	long	i = 0;
 	bool	is_digits = true;
@@ -74,9 +78,9 @@ static int check_int(std::string input)
 			sign = -1;
 		input = input.substr(1);
 	}
-	for (char c : input)
+	for (int i = 0; input[i]; i++)
 	{
-		if (!isdigit(c))
+		if (!isdigit(input[i]))
 		{
 			is_digits = false;
 			break;
@@ -84,14 +88,12 @@ static int check_int(std::string input)
 	}
 	if (is_digits == false)
 		return (0);
-	i = std::stol(input);
+	i = strtol(input.c_str(), NULL, 10);
 	i *= sign;
-	if (i < std::numeric_limits<int>::min() || i > std::numeric_limits<int>::max())
-		return (0);
 	return (VAL_INT);
 }
 
-static int check_float(std::string input)
+int ScalarConverter::check_float(std::string input)
 {
 	long double	i = 0;
 	bool		is_digits = true;
@@ -108,28 +110,30 @@ static int check_float(std::string input)
 			sign = -1;
 		input = input.substr(1);
 	}
-	for (char c : input)
+	for (int i = 0; i < input[i]; i++)
 	{
-		if (!isdigit(c) && c != '.')
+		if (!isdigit(input[i]) && input[i] != '.')
 		{
 			is_digits = false;
 			break;
 		}
-		if (c == '.')
+		if (input[i] == '.')
 			dot++;
 	}
 	if (is_digits == false || dot != 1)
 		return (0);
-	i = std::stof(input);
+	i = strtof(input.c_str(), NULL);
 	i *= sign;
-	if (i < std::numeric_limits<float>::min() || i > std::numeric_limits<float>::max())
-		return (0);
+	if (input[0] == '.')
+		predot = true;
+	else if (input[input.size() - 1] == '.')
+		postdot = true;
 	return (VAL_FLOAT);	
 }
 
-static int check_double(std::string input)
+int ScalarConverter::check_double(std::string input)
 {
-	long double	i = 0;
+	double		i = 0;
 	bool		is_digits = true;
 	int			sign = 1;
 	int			dot = 0;
@@ -140,28 +144,26 @@ static int check_double(std::string input)
 			sign = -1;
 		input = input.substr(1);
 	}
-	for (char c : input)
+	for (int i = 0; i < input[i]; i++)
 	{
-		if (!isdigit(c) && c != '.')
+		if (!isdigit(input[i]) && input[i] != '.')
 		{
 			is_digits = false;
 			break;
 		}
-		if (c == '.')
+		if (input[i] == '.')
 			dot++;
 	}
 	if (is_digits == false || dot != 1)
 		return (0);
-	i = std::strtod(input, NULL);
-	if (errno == ERANGE)
-		return (0);
+	i = strtod(input.c_str(), NULL);
 	i *= sign;
-	if (i < std::numeric_limits<double>::min() || i > std::numeric_limits<double>::max())
-		return (0);
+	if (input[0] == '.')
+		predot = true;
 	return (VAL_DOUBLE);
 }
 
-static int check_type(std::string input)
+int ScalarConverter::check_type(std::string input)
 {
 	if (check_char(input))
 		return (VAL_CHAR);
@@ -175,10 +177,66 @@ static int check_type(std::string input)
 		return (0);
 }
 
+void	ScalarConverter::handle_input(int input)
+{
+	if (input >= 32 && input <= 126)
+		std::cout << CHAR << "'" << static_cast<char>(input) << "'" << RESET << std::endl;
+	else
+		std::cout << CHAR << RED"Non displayable"RESET << std::endl;
+	std::cout << INT << input << RESET << std::endl;
+	std::cout << FLOAT << static_cast<float>(input) << RESET << std::endl;
+	std::cout << DOUBLE << static_cast<double>(input) << RESET << std::endl;
+}
+
+void	ScalarConverter::handle_input(long input)
+{
+	if (input >= 32 && input <= 126)
+		std::cout << CHAR << "'" << static_cast<char>(input) << "'" << RESET << std::endl;
+	else
+		std::cout << CHAR << RED"Non displayable"RESET << std::endl;
+	if (input > std::numeric_limits<int>::max() || input < std::numeric_limits<int>::min())
+		std::cout << INT << RED"impossible"RESET << std::endl;
+	else
+		std::cout << INT << input << RESET << std::endl;
+	std::cout << FLOAT << static_cast<float>(input) << RESET << std::endl;
+	std::cout << DOUBLE << static_cast<double>(input) << RESET << std::endl;
+}
+
+void	ScalarConverter::handle_input(float input)
+{
+	if (input >= 32 && input <= 126)
+		std::cout << CHAR << "'" << static_cast<char>(input) << "'" << RESET << std::endl;
+	else
+		std::cout << CHAR << RED"Non displayable"RESET << std::endl;
+	if (input > std::numeric_limits<int>::max() || input < std::numeric_limits<int>::min())
+		std::cout << INT << RED"impossible"RESET << std::endl;
+	else
+		std::cout << INT << static_cast<int>(input) << RESET << std::endl;
+	std::cout << FLOAT << input << RESET << std::endl;
+	std::cout << DOUBLE << static_cast<double>(input) << RESET << std::endl;
+}
+
+void	ScalarConverter::handle_input(double input)
+{
+	if (input >= 32 && input <= 126)
+		std::cout << CHAR << "'" << static_cast<char>(input) << "'" << RESET << std::endl;
+	else
+		std::cout << CHAR << RED"Non displayable"RESET << std::endl;
+	if (input > std::numeric_limits<int>::max() || input < std::numeric_limits<int>::min())
+		std::cout << INT << RED"impossible"RESET << std::endl;
+	else
+		std::cout << INT << static_cast<int>(input) << RESET << std::endl;
+	std::cout << FLOAT << static_cast<float>(input) << RESET << std::endl;
+	std::cout << DOUBLE << input << RESET << std::endl;
+}
+
 void ScalarConverter::convert(std::string input)
 {
-	int	type = 0;
-	int	val = 0;
+	int		type = 0;
+	int		_char = 0;
+	long	_int = 0;
+	float	_float = 0;
+	double	_double = 0;
 
 	if (check_psuedo(input))
 		return ;
@@ -186,18 +244,23 @@ void ScalarConverter::convert(std::string input)
 	switch (type)
 	{
 	case VAL_CHAR:
-		val = std::atoi(input.c_str());
+		_char = input[0];
+		handle_input(_char);
 		break;
 	case VAL_INT:
-		val = std::atoi(input.c_str());
+		_int = atol(input.c_str());
+		handle_input(_int);
 		break;
 	case VAL_FLOAT:
-		val = std::strtof(input.c_str(), NULL);
+		_float = strtof(input.c_str(), NULL);
+		handle_input(_float);
 		break;
 	case VAL_DOUBLE:
-		val = std::strtod(input.c_str(), NULL);
+		_double = strtod(input.c_str(), NULL);
+		handle_input(_double);
 		break;
 	default:
+		std::cout << RED"Invalid Input."RESET << std::endl;
 		break;
 	}
 }
