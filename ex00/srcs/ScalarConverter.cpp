@@ -6,16 +6,19 @@
 /*   By: abakirca <abakirca@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/07 18:24:27 by abakirca          #+#    #+#             */
-/*   Updated: 2025/02/11 14:21:04 by abakirca         ###   ########.fr       */
+/*   Updated: 2025/02/11 17:25:46 by abakirca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ScalarConverter.hpp"
 
+bool ScalarConverter::predot = false;
+bool ScalarConverter::postdot = false;
+bool ScalarConverter::postzero = false;
+bool ScalarConverter::int_overflow = false;
+
 ScalarConverter::ScalarConverter()
 {
-	predot = false;
-	postdot = false;
 }
 
 ScalarConverter::ScalarConverter(const ScalarConverter &copy)
@@ -90,12 +93,16 @@ int ScalarConverter::check_int(std::string input)
 		return (0);
 	i = strtol(input.c_str(), NULL, 10);
 	i *= sign;
+	if (input.size() > 11)
+		int_overflow = true;
+	else if (i > std::numeric_limits<int>::max() || i < std::numeric_limits<int>::min())
+		int_overflow = true;
 	return (VAL_INT);
 }
 
 int ScalarConverter::check_float(std::string input)
 {
-	long double	i = 0;
+	float		i = 0;
 	bool		is_digits = true;
 	int			sign = 1;
 	int			dot = 0;
@@ -128,6 +135,8 @@ int ScalarConverter::check_float(std::string input)
 		predot = true;
 	else if (input[input.size() - 1] == '.')
 		postdot = true;
+	if (input[input.size() - 1] == '0')
+		postzero = true;
 	return (VAL_FLOAT);	
 }
 
@@ -160,6 +169,10 @@ int ScalarConverter::check_double(std::string input)
 	i *= sign;
 	if (input[0] == '.')
 		predot = true;
+	else if (input[input.size() - 1] == '.')
+		postdot = true;
+	if (input[input.size() - 1] == '0')
+		postzero = true;
 	return (VAL_DOUBLE);
 }
 
@@ -177,29 +190,34 @@ int ScalarConverter::check_type(std::string input)
 		return (0);
 }
 
-void	ScalarConverter::handle_input(int input)
+void	ScalarConverter::handle_input(char input)
 {
 	if (input >= 32 && input <= 126)
 		std::cout << CHAR << "'" << static_cast<char>(input) << "'" << RESET << std::endl;
 	else
 		std::cout << CHAR << RED"Non displayable"RESET << std::endl;
-	std::cout << INT << input << RESET << std::endl;
-	std::cout << FLOAT << static_cast<float>(input) << RESET << std::endl;
-	std::cout << DOUBLE << static_cast<double>(input) << RESET << std::endl;
+	std::cout << INT << static_cast<int>(input) << RESET << std::endl;
+	std::cout << FLOAT << static_cast<float>(input) << ".0f" << RESET << std::endl;
+	std::cout << DOUBLE << static_cast<double>(input) << ".0" << RESET << std::endl;
 }
 
-void	ScalarConverter::handle_input(long input)
+void	ScalarConverter::handle_input(int input)
 {
-	if (input >= 32 && input <= 126)
+	if (!int_overflow && (input >= 32 && input <= 126))
 		std::cout << CHAR << "'" << static_cast<char>(input) << "'" << RESET << std::endl;
 	else
 		std::cout << CHAR << RED"Non displayable"RESET << std::endl;
-	if (input > std::numeric_limits<int>::max() || input < std::numeric_limits<int>::min())
+	if (int_overflow)
+	{
 		std::cout << INT << RED"impossible"RESET << std::endl;
+		std::cout << FLOAT << RED"cannot be cast what is overflowed"RESET << std::endl;
+		std::cout << DOUBLE << RED"cannot be cast what is overflowed"RESET << std::endl;
+		return ;
+	}
 	else
 		std::cout << INT << input << RESET << std::endl;
-	std::cout << FLOAT << static_cast<float>(input) << RESET << std::endl;
-	std::cout << DOUBLE << static_cast<double>(input) << RESET << std::endl;
+	std::cout << FLOAT << static_cast<float>(input) << ".0f" << RESET << std::endl;
+	std::cout << DOUBLE << static_cast<double>(input) << ".0" << RESET << std::endl;
 }
 
 void	ScalarConverter::handle_input(float input)
@@ -212,8 +230,14 @@ void	ScalarConverter::handle_input(float input)
 		std::cout << INT << RED"impossible"RESET << std::endl;
 	else
 		std::cout << INT << static_cast<int>(input) << RESET << std::endl;
-	std::cout << FLOAT << input << RESET << std::endl;
-	std::cout << DOUBLE << static_cast<double>(input) << RESET << std::endl;
+	if (postdot || postzero)
+		std::cout << FLOAT << input << ".0f" << RESET << std::endl;
+	else
+		std::cout << FLOAT << input << "f" << RESET << std::endl;
+	if (postdot || postzero)
+		std::cout << DOUBLE << input << ".0" << RESET << std::endl;
+	else
+		std::cout << DOUBLE << static_cast<double>(input) << RESET << std::endl;
 }
 
 void	ScalarConverter::handle_input(double input)
@@ -226,15 +250,21 @@ void	ScalarConverter::handle_input(double input)
 		std::cout << INT << RED"impossible"RESET << std::endl;
 	else
 		std::cout << INT << static_cast<int>(input) << RESET << std::endl;
-	std::cout << FLOAT << static_cast<float>(input) << RESET << std::endl;
-	std::cout << DOUBLE << input << RESET << std::endl;
+	if (postdot || postzero)
+		std::cout << FLOAT << static_cast<float>(input) << ".0f" << RESET << std::endl;
+	else
+		std::cout << FLOAT << input << "f" << RESET << std::endl;
+	if (postdot || postzero)
+		std::cout << DOUBLE << input << ".0" << RESET << std::endl;
+	else
+		std::cout << DOUBLE << input << RESET << std::endl;
 }
 
 void ScalarConverter::convert(std::string input)
 {
 	int		type = 0;
-	int		_char = 0;
-	long	_int = 0;
+	char	_char = 0;
+	int		_int = 0;
 	float	_float = 0;
 	double	_double = 0;
 
