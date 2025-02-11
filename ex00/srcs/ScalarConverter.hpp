@@ -6,7 +6,7 @@
 /*   By: abakirca <abakirca@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/07 18:22:23 by abakirca          #+#    #+#             */
-/*   Updated: 2025/02/11 17:23:09 by abakirca         ###   ########.fr       */
+/*   Updated: 2025/02/11 18:20:35 by abakirca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,21 +42,6 @@ class ScalarConverter
 			ScalarConverter(ScalarConverter const &copy);
 			ScalarConverter &operator=(ScalarConverter const &copy);
 			~ScalarConverter();
-			static bool	predot;
-			static bool	postdot;
-			static bool	postzero;
-			static bool	int_overflow;
-			static int	check_psuedo(std::string input);
-			static int	check_char(std::string input);
-			static int	check_int(std::string input);
-			static int	check_float(std::string input);
-			static int	check_double(std::string input);
-			static int	check_type(std::string input);
-			static void	handle_input(char input);
-			static void	handle_input(int input);
-			static void	handle_input(float input);
-			static void	handle_input(double input);
-			
 	public:
 			static void convert(std::string input);
 };

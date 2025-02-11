@@ -6,16 +6,16 @@
 /*   By: abakirca <abakirca@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/07 18:24:27 by abakirca          #+#    #+#             */
-/*   Updated: 2025/02/11 17:25:46 by abakirca         ###   ########.fr       */
+/*   Updated: 2025/02/11 18:19:55 by abakirca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ScalarConverter.hpp"
 
-bool ScalarConverter::predot = false;
-bool ScalarConverter::postdot = false;
-bool ScalarConverter::postzero = false;
-bool ScalarConverter::int_overflow = false;
+bool predot = false;
+bool postdot = false;
+bool postzero = false;
+bool int_overflow = false;
 
 ScalarConverter::ScalarConverter()
 {
@@ -39,7 +39,7 @@ ScalarConverter::~ScalarConverter()
 {
 }
 
-int ScalarConverter::check_psuedo(std::string input)
+static int check_psuedo(std::string input)
 {
 	if (input == "nanf" || input == "+inff" || input == "-inff")
 	{
@@ -61,7 +61,7 @@ int ScalarConverter::check_psuedo(std::string input)
 		return (0);
 }
 
-int ScalarConverter::check_char(std::string input)
+static int check_char(std::string input)
 {
 	if (input.size() == 1 && !isdigit(input[0]))
 		return (VAL_CHAR);
@@ -69,7 +69,7 @@ int ScalarConverter::check_char(std::string input)
 		return (0);
 }
 
-int ScalarConverter::check_int(std::string input)
+static int check_int(std::string input)
 {
 	long	i = 0;
 	bool	is_digits = true;
@@ -100,7 +100,7 @@ int ScalarConverter::check_int(std::string input)
 	return (VAL_INT);
 }
 
-int ScalarConverter::check_float(std::string input)
+static int check_float(std::string input)
 {
 	float		i = 0;
 	bool		is_digits = true;
@@ -140,7 +140,7 @@ int ScalarConverter::check_float(std::string input)
 	return (VAL_FLOAT);	
 }
 
-int ScalarConverter::check_double(std::string input)
+static int check_double(std::string input)
 {
 	double		i = 0;
 	bool		is_digits = true;
@@ -176,7 +176,7 @@ int ScalarConverter::check_double(std::string input)
 	return (VAL_DOUBLE);
 }
 
-int ScalarConverter::check_type(std::string input)
+static int check_type(std::string input)
 {
 	if (check_char(input))
 		return (VAL_CHAR);
@@ -190,7 +190,7 @@ int ScalarConverter::check_type(std::string input)
 		return (0);
 }
 
-void	ScalarConverter::handle_input(char input)
+static void	handle_input(char input)
 {
 	if (input >= 32 && input <= 126)
 		std::cout << CHAR << "'" << static_cast<char>(input) << "'" << RESET << std::endl;
@@ -201,7 +201,7 @@ void	ScalarConverter::handle_input(char input)
 	std::cout << DOUBLE << static_cast<double>(input) << ".0" << RESET << std::endl;
 }
 
-void	ScalarConverter::handle_input(int input)
+static void	handle_input(int input)
 {
 	if (!int_overflow && (input >= 32 && input <= 126))
 		std::cout << CHAR << "'" << static_cast<char>(input) << "'" << RESET << std::endl;
@@ -220,7 +220,7 @@ void	ScalarConverter::handle_input(int input)
 	std::cout << DOUBLE << static_cast<double>(input) << ".0" << RESET << std::endl;
 }
 
-void	ScalarConverter::handle_input(float input)
+static void	handle_input(float input)
 {
 	if (input >= 32 && input <= 126)
 		std::cout << CHAR << "'" << static_cast<char>(input) << "'" << RESET << std::endl;
@@ -240,7 +240,7 @@ void	ScalarConverter::handle_input(float input)
 		std::cout << DOUBLE << static_cast<double>(input) << RESET << std::endl;
 }
 
-void	ScalarConverter::handle_input(double input)
+static void	handle_input(double input)
 {
 	if (input >= 32 && input <= 126)
 		std::cout << CHAR << "'" << static_cast<char>(input) << "'" << RESET << std::endl;
