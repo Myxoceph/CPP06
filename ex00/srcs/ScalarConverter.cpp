@@ -6,7 +6,7 @@
 /*   By: abakirca <abakirca@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/07 18:24:27 by abakirca          #+#    #+#             */
-/*   Updated: 2025/02/11 18:19:55 by abakirca         ###   ########.fr       */
+/*   Updated: 2025/02/11 19:05:16 by abakirca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,8 @@ bool predot = false;
 bool postdot = false;
 bool postzero = false;
 bool int_overflow = false;
+bool float_inf = false;
+bool double_inf = false;
 
 ScalarConverter::ScalarConverter()
 {
@@ -117,7 +119,7 @@ static int check_float(std::string input)
 			sign = -1;
 		input = input.substr(1);
 	}
-	for (int i = 0; i < input[i]; i++)
+	for (int i = 0; input[i]; i++)
 	{
 		if (!isdigit(input[i]) && input[i] != '.')
 		{
@@ -135,8 +137,10 @@ static int check_float(std::string input)
 		predot = true;
 	else if (input[input.size() - 1] == '.')
 		postdot = true;
-	if (input[input.size() - 1] == '0')
+	if (input[input.size() - 1] == '0' && input[input.size() - 2] == '.')
 		postzero = true;
+	if (input.size() > 40)
+		float_inf = true;
 	return (VAL_FLOAT);	
 }
 
@@ -153,7 +157,7 @@ static int check_double(std::string input)
 			sign = -1;
 		input = input.substr(1);
 	}
-	for (int i = 0; i < input[i]; i++)
+	for (int i = 0; input[i]; i++)
 	{
 		if (!isdigit(input[i]) && input[i] != '.')
 		{
@@ -163,16 +167,20 @@ static int check_double(std::string input)
 		if (input[i] == '.')
 			dot++;
 	}
+	std::cout << WHITE"is_digits = " << is_digits << RESET << std::endl;
+	std::cout << WHITE"dot = " << dot << RESET << std::endl;
 	if (is_digits == false || dot != 1)
 		return (0);
-	i = strtod(input.c_str(), NULL);
+	strtod(input.c_str(), NULL);
 	i *= sign;
 	if (input[0] == '.')
 		predot = true;
 	else if (input[input.size() - 1] == '.')
 		postdot = true;
-	if (input[input.size() - 1] == '0')
+	if (input[input.size() - 1] == '0' && input[input.size() - 2] == '.')
 		postzero = true;
+	if (input.size() > 310)
+		double_inf = true;
 	return (VAL_DOUBLE);
 }
 
@@ -193,7 +201,7 @@ static int check_type(std::string input)
 static void	handle_input(char input)
 {
 	if (input >= 32 && input <= 126)
-		std::cout << CHAR << "'" << static_cast<char>(input) << "'" << RESET << std::endl;
+		std::cout << CHAR << "'" << input << "'" << RESET << std::endl;
 	else
 		std::cout << CHAR << RED"Non displayable"RESET << std::endl;
 	std::cout << INT << static_cast<int>(input) << RESET << std::endl;
@@ -230,12 +238,12 @@ static void	handle_input(float input)
 		std::cout << INT << RED"impossible"RESET << std::endl;
 	else
 		std::cout << INT << static_cast<int>(input) << RESET << std::endl;
-	if (postdot || postzero)
+	if ((postdot || postzero) && !float_inf)
 		std::cout << FLOAT << input << ".0f" << RESET << std::endl;
 	else
 		std::cout << FLOAT << input << "f" << RESET << std::endl;
-	if (postdot || postzero)
-		std::cout << DOUBLE << input << ".0" << RESET << std::endl;
+	if ((postdot || postzero) && !float_inf)
+		std::cout << DOUBLE << static_cast<double>(input) << ".0" << RESET << std::endl;
 	else
 		std::cout << DOUBLE << static_cast<double>(input) << RESET << std::endl;
 }
@@ -250,11 +258,11 @@ static void	handle_input(double input)
 		std::cout << INT << RED"impossible"RESET << std::endl;
 	else
 		std::cout << INT << static_cast<int>(input) << RESET << std::endl;
-	if (postdot || postzero)
+	if ((postdot || postzero) && !double_inf)
 		std::cout << FLOAT << static_cast<float>(input) << ".0f" << RESET << std::endl;
 	else
-		std::cout << FLOAT << input << "f" << RESET << std::endl;
-	if (postdot || postzero)
+		std::cout << FLOAT << static_cast<float>(input) << "f" << RESET << std::endl;
+	if ((postdot || postzero) && !double_inf)
 		std::cout << DOUBLE << input << ".0" << RESET << std::endl;
 	else
 		std::cout << DOUBLE << input << RESET << std::endl;
