@@ -6,7 +6,7 @@
 /*   By: abakirca <abakirca@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/07 18:24:27 by abakirca          #+#    #+#             */
-/*   Updated: 2025/02/12 13:35:33 by abakirca         ###   ########.fr       */
+/*   Updated: 2025/02/12 15:02:46 by abakirca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,26 +41,26 @@ ScalarConverter::~ScalarConverter()
 {
 }
 
-static int check_psuedo(std::string input)
+static std::string intToString(int num)
 {
-	if (input == "nanf" || input == "+inff" || input == "-inff" || input == "inff")
-	{
-		std::cout << CHAR << RED"impossible"RESET << std::endl;
-		std::cout << INT << RED"impossible"RESET << std::endl;
-		std::cout << FLOAT << input << RESET << std::endl;
-		std::cout << DOUBLE << input.substr(0, input.size() - 1) << RESET << std::endl;
-		return (1);
-	}
-	else if (input == "nan" || input == "+inf" || input == "-inf" || input == "inf")
-	{
-		std::cout << CHAR << RED"impossible"RESET << std::endl;
-		std::cout << INT << RED"impossible"RESET << std::endl;
-		std::cout << FLOAT << input << "f" << RESET << std::endl;
-		std::cout << DOUBLE << input << RESET << std::endl;
-		return (1);
-	}
-	else
-		return (0);
+	std::ostringstream oss;
+	oss << num;
+	return oss.str();
+}
+
+static int check_psuedo_float(std::string input)
+{
+	if (input[input.size() - 1] == 'f')
+		if (input == "nanf" || input == "+inff" || input == "-inff" || input == "inff")
+			return (1);
+	return (0);
+}
+
+static int check_psuedo_double(std::string input)
+{
+	if (input == "nan" || input == "+inf" || input == "-inf" || input == "inf")
+			return (1);
+	return (0);
 }
 
 static int check_char(std::string input)
@@ -188,6 +188,10 @@ static int check_type(std::string input)
 {
 	if (check_char(input))
 		return (VAL_CHAR);
+	else if (check_psuedo_float(input))
+		return (VAL_FLOAT);
+	else if (check_psuedo_double(input))
+		return (VAL_DOUBLE);
 	else if (check_int(input))
 		return (VAL_INT);
 	else if (check_float(input))
@@ -224,8 +228,8 @@ static void	handle_input(int input)
 	}
 	else
 		std::cout << INT << input << RESET << std::endl;
-	std::cout << FLOAT << static_cast<float>(input) << ".0f" << RESET << std::endl;
-	std::cout << DOUBLE << static_cast<double>(input) << ".0" << RESET << std::endl;
+	std::cout << FLOAT << static_cast<float>(input) << (intToString(std::abs(input)).length() < 7 ? ".0f" : "f") << RESET << std::endl;
+	std::cout << DOUBLE << static_cast<float>(input) << (intToString(std::abs(input)).length() < 7 ? ".0" : "") << RESET << std::endl;
 }
 
 static void	handle_input(float input)
@@ -234,7 +238,7 @@ static void	handle_input(float input)
 		std::cout << CHAR << "'" << static_cast<char>(input) << "'" << RESET << std::endl;
 	else
 		std::cout << CHAR << RED"Non displayable"RESET << std::endl;
-	if (input > std::numeric_limits<int>::max() || input < std::numeric_limits<int>::min())
+	if (std::isnan(input) || (input > std::numeric_limits<int>::max() || input < std::numeric_limits<int>::min()))
 		std::cout << INT << RED"impossible"RESET << std::endl;
 	else
 		std::cout << INT << static_cast<int>(input) << RESET << std::endl;
@@ -254,7 +258,7 @@ static void	handle_input(double input)
 		std::cout << CHAR << "'" << static_cast<char>(input) << "'" << RESET << std::endl;
 	else
 		std::cout << CHAR << RED"Non displayable"RESET << std::endl;
-	if (input > std::numeric_limits<int>::max() || input < std::numeric_limits<int>::min())
+	if (std::isnan(input) || (input > std::numeric_limits<int>::max() || input < std::numeric_limits<int>::min()))
 		std::cout << INT << RED"impossible"RESET << std::endl;
 	else
 		std::cout << INT << static_cast<int>(input) << RESET << std::endl;
@@ -276,8 +280,6 @@ void ScalarConverter::convert(std::string input)
 	float	_float = 0;
 	double	_double = 0;
 
-	if (check_psuedo(input))
-		return ;
 	type = check_type(input);
 	switch (type)
 	{

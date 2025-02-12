@@ -6,7 +6,7 @@
 /*   By: abakirca <abakirca@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/07 18:22:23 by abakirca          #+#    #+#             */
-/*   Updated: 2025/02/11 18:20:35 by abakirca         ###   ########.fr       */
+/*   Updated: 2025/02/12 14:29:14 by abakirca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 # define SCALARCONVERTER_HPP
 
 #include <iostream>
+#include <sstream>
 #include <limits>
 #include <cmath>
 
