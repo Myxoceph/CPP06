@@ -6,7 +6,7 @@
 /*   By: abakirca <abakirca@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/07 18:24:27 by abakirca          #+#    #+#             */
-/*   Updated: 2025/02/11 19:05:16 by abakirca         ###   ########.fr       */
+/*   Updated: 2025/02/12 13:35:33 by abakirca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,7 +43,7 @@ ScalarConverter::~ScalarConverter()
 
 static int check_psuedo(std::string input)
 {
-	if (input == "nanf" || input == "+inff" || input == "-inff")
+	if (input == "nanf" || input == "+inff" || input == "-inff" || input == "inff")
 	{
 		std::cout << CHAR << RED"impossible"RESET << std::endl;
 		std::cout << INT << RED"impossible"RESET << std::endl;
@@ -51,7 +51,7 @@ static int check_psuedo(std::string input)
 		std::cout << DOUBLE << input.substr(0, input.size() - 1) << RESET << std::endl;
 		return (1);
 	}
-	else if (input == "nan" || input == "+inf" || input == "-inf")
+	else if (input == "nan" || input == "+inf" || input == "-inf" || input == "inf")
 	{
 		std::cout << CHAR << RED"impossible"RESET << std::endl;
 		std::cout << INT << RED"impossible"RESET << std::endl;
@@ -179,7 +179,7 @@ static int check_double(std::string input)
 		postdot = true;
 	if (input[input.size() - 1] == '0' && input[input.size() - 2] == '.')
 		postzero = true;
-	if (input.size() > 310)
+	if (input.size() > 309)
 		double_inf = true;
 	return (VAL_DOUBLE);
 }
@@ -239,11 +239,11 @@ static void	handle_input(float input)
 	else
 		std::cout << INT << static_cast<int>(input) << RESET << std::endl;
 	if ((postdot || postzero) && !float_inf)
-		std::cout << FLOAT << input << ".0f" << RESET << std::endl;
+		std::cout << FLOAT << input << (floor(input) == input ? "f" : ".0f") << RESET << std::endl;
 	else
 		std::cout << FLOAT << input << "f" << RESET << std::endl;
 	if ((postdot || postzero) && !float_inf)
-		std::cout << DOUBLE << static_cast<double>(input) << ".0" << RESET << std::endl;
+		std::cout << DOUBLE << static_cast<double>(input) << (floor(input) == input ? "" : ".0") << RESET << std::endl;
 	else
 		std::cout << DOUBLE << static_cast<double>(input) << RESET << std::endl;
 }
@@ -259,11 +259,11 @@ static void	handle_input(double input)
 	else
 		std::cout << INT << static_cast<int>(input) << RESET << std::endl;
 	if ((postdot || postzero) && !double_inf)
-		std::cout << FLOAT << static_cast<float>(input) << ".0f" << RESET << std::endl;
+		std::cout << FLOAT << static_cast<float>(input) << (floor(input) == input ? "f" : ".0f") << RESET << std::endl;
 	else
 		std::cout << FLOAT << static_cast<float>(input) << "f" << RESET << std::endl;
 	if ((postdot || postzero) && !double_inf)
-		std::cout << DOUBLE << input << ".0" << RESET << std::endl;
+		std::cout << DOUBLE << input << (floor(input) == input ? "" : ".0") << RESET << std::endl;
 	else
 		std::cout << DOUBLE << input << RESET << std::endl;
 }
