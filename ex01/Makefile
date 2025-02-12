@@ -6,11 +6,11 @@
 #    By: abakirca <abakirca@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/11/08 20:10:29 by abakirca          #+#    #+#              #
-#    Updated: 2025/02/12 15:52:25 by abakirca         ###   ########.fr        #
+#    Updated: 2025/02/12 15:52:04 by abakirca         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
-NAME			=	convert
+NAME			=	serializer
 
 CC				=	c++
 CFLAGS			=	-Wall -Werror -Wextra -std=c++98 -g
@@ -20,7 +20,7 @@ RM				=	rm -rf
 SRCS_DIR		=	./srcs/
 OBJS_DIR		=	./objs/
 
-SRCS 			=	$(SRCS_DIR)main.cpp $(SRCS_DIR)ScalarConverter.cpp
+SRCS 			=	$(SRCS_DIR)main.cpp $(SRCS_DIR)Serializer.cpp
 
 OBJS			=	$(patsubst $(SRCS_DIR)%.cpp, $(OBJS_DIR)%.o, $(SRCS))
 
@@ -42,12 +42,12 @@ $(OBJS_DIR)%.o	:	$(SRCS_DIR)%.cpp
 
 clean			:
 					@$(RM) -rf $(OBJS_DIR)
-					@echo "\e[1m$(COLOR_YELLOW)objects		$(COLOR_RED)[are deleted!]\e[0m$(COLOR_END)"
+					@echo "\e[1m$(COLOR_YELLOW)objects	$(COLOR_RED)[are deleted!]\e[0m$(COLOR_END)"
 			
 
 fclean			:	clean
 					@$(RM) $(NAME)
-					@echo "\e[1m$(COLOR_YELLOW)$(NAME)		$(COLOR_RED)[is deleted!]\e[0m$(COLOR_END)"
+					@echo "\e[1m$(COLOR_YELLOW)$(NAME)	$(COLOR_RED)[is deleted!]\e[0m$(COLOR_END)"
 
 re				:	fclean all
 
