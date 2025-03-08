@@ -6,16 +6,16 @@
 /*   By: abakirca <abakirca@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/07 18:24:27 by abakirca          #+#    #+#             */
-/*   Updated: 2025/02/12 15:02:46 by abakirca         ###   ########.fr       */
+/*   Updated: 2025/03/08 14:00:24 by abakirca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ScalarConverter.hpp"
 
-bool predot = false;
 bool postdot = false;
 bool postzero = false;
 bool int_overflow = false;
+bool e_ctrl = false;
 bool float_inf = false;
 bool double_inf = false;
 
@@ -99,6 +99,8 @@ static int check_int(std::string input)
 		int_overflow = true;
 	else if (i > std::numeric_limits<int>::max() || i < std::numeric_limits<int>::min())
 		int_overflow = true;
+	if (input.size() > 6)
+		e_ctrl = true;
 	return (VAL_INT);
 }
 
@@ -133,14 +135,15 @@ static int check_float(std::string input)
 		return (0);
 	i = strtof(input.c_str(), NULL);
 	i *= sign;
-	if (input[0] == '.')
-		predot = true;
-	else if (input[input.size() - 1] == '.')
+	std::cout << i << std::endl;
+	if (input[input.size() - 1] == '.')
 		postdot = true;
 	if (input[input.size() - 1] == '0' && input[input.size() - 2] == '.')
 		postzero = true;
 	if (input.size() > 40)
 		float_inf = true;
+	if (input.size() > 7)
+		e_ctrl = true;
 	return (VAL_FLOAT);	
 }
 
@@ -167,20 +170,18 @@ static int check_double(std::string input)
 		if (input[i] == '.')
 			dot++;
 	}
-	std::cout << WHITE"is_digits = " << is_digits << RESET << std::endl;
-	std::cout << WHITE"dot = " << dot << RESET << std::endl;
 	if (is_digits == false || dot != 1)
 		return (0);
 	strtod(input.c_str(), NULL);
 	i *= sign;
-	if (input[0] == '.')
-		predot = true;
-	else if (input[input.size() - 1] == '.')
+	if (input[input.size() - 1] == '.')
 		postdot = true;
 	if (input[input.size() - 1] == '0' && input[input.size() - 2] == '.')
 		postzero = true;
 	if (input.size() > 309)
 		double_inf = true;
+	if (input.size() > 7)
+		e_ctrl = true;
 	return (VAL_DOUBLE);
 }
 
@@ -222,8 +223,8 @@ static void	handle_input(int input)
 	if (int_overflow)
 	{
 		std::cout << INT << RED"impossible"RESET << std::endl;
-		std::cout << FLOAT << RED"cannot be cast what is overflowed"RESET << std::endl;
-		std::cout << DOUBLE << RED"cannot be cast what is overflowed"RESET << std::endl;
+		std::cout << FLOAT << RED"illogical cast for integer is overflowed"RESET << std::endl;
+		std::cout << DOUBLE << RED"illogical cast for integer is overflowed"RESET << std::endl;
 		return ;
 	}
 	else
@@ -243,11 +244,21 @@ static void	handle_input(float input)
 	else
 		std::cout << INT << static_cast<int>(input) << RESET << std::endl;
 	if ((postdot || postzero) && !float_inf)
-		std::cout << FLOAT << input << (floor(input) == input ? "f" : ".0f") << RESET << std::endl;
+	{
+		if (e_ctrl)
+			std::cout << FLOAT << input << "f" << RESET << std::endl;
+		else
+			std::cout << FLOAT << input << (floor(input) == input ? ".0f" : "f") << RESET << std::endl;
+	}
 	else
 		std::cout << FLOAT << input << "f" << RESET << std::endl;
 	if ((postdot || postzero) && !float_inf)
-		std::cout << DOUBLE << static_cast<double>(input) << (floor(input) == input ? "" : ".0") << RESET << std::endl;
+	{
+		if (e_ctrl)
+			std::cout << DOUBLE << input << RESET << std::endl;
+		else
+			std::cout << DOUBLE << input << (floor(input) == input ? ".0" : "") << RESET << std::endl;
+	}
 	else
 		std::cout << DOUBLE << static_cast<double>(input) << RESET << std::endl;
 }
@@ -263,11 +274,21 @@ static void	handle_input(double input)
 	else
 		std::cout << INT << static_cast<int>(input) << RESET << std::endl;
 	if ((postdot || postzero) && !double_inf)
-		std::cout << FLOAT << static_cast<float>(input) << (floor(input) == input ? "f" : ".0f") << RESET << std::endl;
+	{
+		if (e_ctrl)
+			std::cout << FLOAT << input << "f" << RESET << std::endl;
+		else
+			std::cout << FLOAT << input << (floor(input) == input ? ".0f" : "f") << RESET << std::endl;
+	}
 	else
 		std::cout << FLOAT << static_cast<float>(input) << "f" << RESET << std::endl;
 	if ((postdot || postzero) && !double_inf)
-		std::cout << DOUBLE << input << (floor(input) == input ? "" : ".0") << RESET << std::endl;
+	{
+		if (e_ctrl)
+			std::cout << DOUBLE << input << RESET << std::endl;
+		else
+			std::cout << DOUBLE << input << (floor(input) == input ? ".0" : "") << RESET << std::endl;
+	}
 	else
 		std::cout << DOUBLE << input << RESET << std::endl;
 }
