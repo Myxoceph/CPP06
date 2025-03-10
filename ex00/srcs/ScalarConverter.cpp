@@ -6,7 +6,7 @@
 /*   By: abakirca <abakirca@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/07 18:24:27 by abakirca          #+#    #+#             */
-/*   Updated: 2025/03/08 14:00:24 by abakirca         ###   ########.fr       */
+/*   Updated: 2025/03/10 12:36:31 by abakirca         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -178,7 +178,7 @@ static int check_double(std::string input)
 		postdot = true;
 	if (input[input.size() - 1] == '0' && input[input.size() - 2] == '.')
 		postzero = true;
-	if (input.size() > 309)
+	if (input.size() > 310)
 		double_inf = true;
 	if (input.size() > 7)
 		e_ctrl = true;
